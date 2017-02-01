@@ -25,14 +25,14 @@ int main(){
 	}
 	CircleFitter CircleFit;
 	Mat RawFrame,FrameGreyScale;
-	CircleFit.RANSACThreshold = 10;
+	CircleFit.RANSACThreshold=95;
 	for (;;){
 		vector<pair<cv::Point, double>> Circles;
 		//Get the frame
 		vcap1 >> RawFrame;
 		cvtColor(RawFrame, FrameGreyScale, CV_RGB2GRAY);
 
-		Circles = CircleFit.FindCircles(FrameGreyScale, 50, 10, 50, 20, 100, 300000);
+		Circles = CircleFit.FindCircles(FrameGreyScale, 150, 1, 30, 50, 100, 300000);
 		for (int i = 0; i < Circles.size(); i++){
 			cv::circle(RawFrame, Circles[i].first, Circles[i].second,Scalar(255,0,0),4,8);
 		}

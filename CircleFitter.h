@@ -28,7 +28,7 @@ public:
 	CircleFitter();
 
 	int RANSACThreshold;//Consensus of model in percent
-	int Iterations, CenterThresh, RadiusThresh;
+	int Iterations, ErrorThresh;
 
 	bool FilterSimilar; //Set to true to filter circles with a similar center, used in FindCircles - set to true by default
 

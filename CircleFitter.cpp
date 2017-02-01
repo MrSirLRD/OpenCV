@@ -6,10 +6,9 @@ using namespace std;
 CircleFitter::CircleFitter(){
 
 	srand(time(NULL)); // Seed the time
-	RANSACThreshold = 50;
+	RANSACThreshold = 90;
 	Iterations = 20;
-	CenterThresh = 10;
-	RadiusThresh = 10;
+	ErrorThresh = 1;
 	FilterSimilar = true;
 }
 
@@ -63,7 +62,7 @@ pair<cv::Point, double> CircleFitter::CircleFromPoints(cv::Point p1, cv::Point p
 
 double CircleFitter::dist(cv::Point x, cv::Point y){
 
-	return (x.x - y.x)*(x.x - y.x) + (x.y - y.y)*(x.y - y.y);
+	return sqrt((x.x - y.x)*(x.x - y.x) + (x.y - y.y)*(x.y - y.y));
 
 }//end dist
 
@@ -71,9 +70,9 @@ pair<cv::Point, double> CircleFitter::FitCircle(vector<cv::Point> Contours){
 
 	int Matches = 0;
 	int BestMatch = 0;
-	double CenterDist, RadiusDiff;
-	vector <cv::Point> ModelPoints, TestPoints;
-	pair<cv::Point, double> ModelCircle, TestCircle, BestCircle;
+	double PointDist,PointErr;
+	vector <cv::Point> ModelPoints;
+	pair<cv::Point, double> ModelCircle, BestCircle;
 
 	if (Contours.size() > 4){
 		for (int i = 0; i < Iterations; i++){
@@ -81,14 +80,11 @@ pair<cv::Point, double> CircleFitter::FitCircle(vector<cv::Point> Contours){
 			ModelPoints = ThreeRandomPoints(Contours);
 			ModelCircle = CircleFromPoints(ModelPoints[0], ModelPoints[1], ModelPoints[2]);
 			if (ModelCircle.second>0){
-				for (int p = 0; p < Iterations; p++){
-					TestPoints = ThreeRandomPoints(Contours);
-					TestCircle = CircleFromPoints(TestPoints[0], TestPoints[1], TestPoints[2]);
+				for (int p = 0; p < Contours.size(); p++){
+					PointDist = dist(Contours[p], ModelCircle.first);
+					PointErr = abs(PointDist - ModelCircle.second);
 
-					CenterDist = dist(TestCircle.first, ModelCircle.first);
-					RadiusDiff = sqrt(pow(TestCircle.second - ModelCircle.second, 2));
-
-					if ((CenterDist < CenterThresh) && (RadiusDiff < RadiusThresh)){
+					if (PointErr < ErrorThresh){
 						Matches++;
 					}//end if circle match
 
@@ -116,7 +112,7 @@ pair<cv::Point, double> CircleFitter::FitCircle(vector<cv::Point> Contours, int 
 
 	int Matches = 0;
 	int BestMatch = 0;
-	double CenterDist, RadiusDiff;
+	double PointDist, PointErr;
 	vector <cv::Point> ModelPoints, TestPoints;
 	pair<cv::Point, double> ModelCircle, TestCircle, BestCircle;
 
@@ -127,14 +123,11 @@ pair<cv::Point, double> CircleFitter::FitCircle(vector<cv::Point> Contours, int 
 			ModelCircle = CircleFromPoints(ModelPoints[0], ModelPoints[1], ModelPoints[2]);
 			if ((ModelCircle.second>0) && (ModelCircle.second >= MinR) && (ModelCircle.second <= MaxR))
 			{
-				for (int p = 0; p < Iterations; p++){
-					TestPoints = ThreeRandomPoints(Contours);
-					TestCircle = CircleFromPoints(TestPoints[0], TestPoints[1], TestPoints[2]);
+				for (int p = 0; p < Contours.size(); p++){
+					PointDist = dist(Contours[p], ModelCircle.first);
+					PointErr = abs(PointDist - ModelCircle.second);
 
-					CenterDist = dist(TestCircle.first, ModelCircle.first);
-					RadiusDiff = sqrt(pow(TestCircle.second - ModelCircle.second, 2));
-
-					if ((CenterDist < CenterThresh) && (RadiusDiff < RadiusThresh)){
+					if (PointErr < ErrorThresh){
 						Matches++;
 					}//end if circle match
 
@@ -163,7 +156,7 @@ pair<cv::Point, double> CircleFitter::FitCircle(vector<cv::Point> Contours, int 
 
 	int Matches = 0;
 	int BestMatch = 0;
-	double CenterDist, RadiusDiff;
+	double PointDist, PointErr;
 	vector <cv::Point> ModelPoints, TestPoints;
 	pair<cv::Point, double> ModelCircle, TestCircle, BestCircle;
 
@@ -174,14 +167,11 @@ pair<cv::Point, double> CircleFitter::FitCircle(vector<cv::Point> Contours, int 
 			ModelCircle = CircleFromPoints(ModelPoints[0], ModelPoints[1], ModelPoints[2]);
 			if ((ModelCircle.second>0) && (ModelCircle.second >= MinR) && (ModelCircle.second <= MaxR))
 			{
-				for (int p = 0; p < Iteration; p++){
-					TestPoints = ThreeRandomPoints(Contours);
-					TestCircle = CircleFromPoints(TestPoints[0], TestPoints[1], TestPoints[2]);
+				for (int p = 0; p < Contours.size(); p++){
+					PointDist = dist(Contours[p], ModelCircle.first);
+					PointErr = abs(PointDist - ModelCircle.second);
 
-					CenterDist = dist(TestCircle.first, ModelCircle.first);
-					RadiusDiff = sqrt(pow(TestCircle.second - ModelCircle.second, 2));
-
-					if ((CenterDist < CenterThresh) && (RadiusDiff < RadiusThresh)){
+					if (PointErr < ErrorThresh){
 						Matches++;
 					}//end if circle match
 
